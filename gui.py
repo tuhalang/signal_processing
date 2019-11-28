@@ -12,35 +12,51 @@ import numpy as np
 from scipy import signal
 
 root = Tk()
+root.title('Signal Processing ...')
 root.config(background='white')
-#root.geometry("1000x700")
 
 figure = Figure(figsize=(6, 6), dpi=130)
 plot1 = figure.add_subplot(2, 1, 1)
 plot2 = figure.add_subplot(2, 1, 2)
 
-x = np.linspace(-2.5,2.5)
-y1 = -x-1
-y2 = x-1
-y3 = (x**2)/4
-y4 = x-x+1
-y5 = x-x
-x1 = 0
-plot1.plot(x,y1)
-plot1.plot(x,y2)
-plot1.plot(x,y3)
-plot1.plot(x,y4)
-plot1.plot(x,y5)
+
+
+def init_draw(plot, a=1, b=1):
+    plot.clear()
+    x = np.linspace(-2.2,2.2)
+    y1 = -x-1
+    y2 = x-1
+    y3 = (x**2)/4
+    y4 = x-x+1
+    y5 = x-x
+    plot1.plot(x,y1)
+    plot1.plot(x,y2)
+    plot1.plot(x,y3)
+    plot1.plot(x,y4)
+    plot1.plot(x,y5)
+    plot1.plot(a, b, color="red", marker="o", linestyle="")
+
+def draw_hn(plot, a=1, b=1):
+    plot.clear()
+    Yz = [1]
+    Zz = [1, a, b]
+    r, p, k = signal.residuez(Yz,Zz)
+    n = np.linspace(0,150,151)
+    h=0
+    for i in range(len(r)):
+       h+=r[i]*((p[i])**n) 
+    h+=sum(k)
+    plot.plot(n,h)
+
+init_draw(plot1)
+draw_hn(plot2)
 
 def callback(event):
     a, b = event.inaxes.transData.inverted().transform((event.x, event.y))
     print((a,b))
-    # plot1.clear()
-    # plot2.clear()
-    # plot1.plot(y1)
-    # plot2.plot(y1)
-    # plot1.plot(a, b, color="red", marker="o", linestyle="")
-    # canvas.draw()
+    init_draw(plot1, a, b)
+    draw_hn(plot2,a,b)
+    canvas.draw()
 
 canvas = FigureCanvasTkAgg(figure, root)
 canvas.get_tk_widget().grid(row=0, column=0)
